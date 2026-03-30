@@ -345,8 +345,7 @@ void indicate_layer(void) {
                                             .sleep_ms = CONFIG_RGBLED_WIDGET_LAYER_BLINK_MS};
     static const struct blink_item last_blink = {.duration_ms = CONFIG_RGBLED_WIDGET_LAYER_BLINK_MS,
                                                  .color = CONFIG_RGBLED_WIDGET_LAYER_COLOR};
-    LOG_INF("Blinking %d times %s for layer change", index,
-            color_names[CONFIG_RGBLED_WIDGET_LAYER_COLOR]);
+    LOG_INF("Blinking %d times %06x for layer change", index, CONFIG_RGBLED_WIDGET_LAYER_COLOR);
 
     for (int i = 0; i < index; i++) {
         if (i < index - 1) {
@@ -449,6 +448,7 @@ extern void led_init_thread(void *d0, void *d1, void *d2) {
 // run init thread on boot for initial battery+output checks
 K_THREAD_DEFINE(led_init_tid, 1024, led_init_thread, NULL, NULL, NULL,
                 K_LOWEST_APPLICATION_THREAD_PRIO, 0, 200);
+
 
 
 
