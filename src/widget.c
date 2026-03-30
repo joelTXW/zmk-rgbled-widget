@@ -24,7 +24,7 @@
 
 LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 
-#define LED_GPIO_NODE_ID DT_COMPAT_GET_ANY_STATUS_OKAY(gpio_leds)
+#define LED_GPIO_NODE_ID DT_COMPAT_GET_ANY_STATUS_OKAY(pwm_leds)
 
 BUILD_ASSERT(DT_NODE_EXISTS(DT_ALIAS(led_red)),
              "An alias for a red LED is not found for RGBLED_WIDGET");
@@ -43,12 +43,10 @@ static const uint8_t rgb_idx[] = {DT_NODE_CHILD_IDX(DT_ALIAS(led_red)),
                                   DT_NODE_CHILD_IDX(DT_ALIAS(led_green)),
                                   DT_NODE_CHILD_IDX(DT_ALIAS(led_blue))};
 
-// map from color values to names, for logging
-static const char *color_names[] = {"black", "red",     "green", "yellow",
-                                    "blue",  "magenta", "cyan",  "white"};
+// no color names for hex
 
 #if SHOW_LAYER_COLORS
-static const uint8_t layer_color_idx[] = {
+static const uint32_t layer_color_idx[] = {
     CONFIG_RGBLED_WIDGET_LAYER_0_COLOR,  CONFIG_RGBLED_WIDGET_LAYER_1_COLOR,
     CONFIG_RGBLED_WIDGET_LAYER_2_COLOR,  CONFIG_RGBLED_WIDGET_LAYER_3_COLOR,
     CONFIG_RGBLED_WIDGET_LAYER_4_COLOR,  CONFIG_RGBLED_WIDGET_LAYER_5_COLOR,
@@ -70,18 +68,18 @@ static const uint8_t layer_color_idx[] = {
 
 // log shorthands
 #define LOG_CONN_CENTRAL(index, status, color_label)                                               \
-    LOG_INF("Profile %d %s, blinking %s", index, status,                                           \
-            color_names[CONFIG_RGBLED_WIDGET_CONN_COLOR_##color_label])
+    LOG_INF("Profile %d %s, blinking %06x", index, status,                                         \
+            CONFIG_RGBLED_WIDGET_CONN_COLOR_##color_label)
 #define LOG_CONN_PERIPHERAL(status, color_label)                                                   \
-    LOG_INF("Peripheral %s, blinking %s", status,                                                  \
-            color_names[CONFIG_RGBLED_WIDGET_CONN_COLOR_##color_label])
+    LOG_INF("Peripheral %s, blinking %06x", status,                                                \
+            CONFIG_RGBLED_WIDGET_CONN_COLOR_##color_label)
 #define LOG_BATTERY(battery_level, color_label)                                                    \
-    LOG_INF("Battery level %d, blinking %s", battery_level,                                        \
-            color_names[CONFIG_RGBLED_WIDGET_BATTERY_COLOR_##color_label])
+    LOG_INF("Battery level %d, blinking %06x", battery_level,                                      \
+            CONFIG_RGBLED_WIDGET_BATTERY_COLOR_##color_label)
 
 // a blink work item as specified by the color and duration
 struct blink_item {
-    uint8_t color;
+    uint32_t color;
     uint16_t duration_ms;
     uint16_t sleep_ms;
 };
@@ -90,25 +88,23 @@ struct blink_item {
 static bool initialized = false;
 
 // track current color for persistent indicators (layer color)
-uint8_t led_current_color = 0;
+uint32_t led_current_color = 0;
 
 // low-level method to control the LED
-static void set_rgb_leds(uint8_t color, uint16_t duration_ms) {
-    for (uint8_t pos = 0; pos < 3; pos++) {
-        uint8_t bit = BIT(pos);
-        if ((bit & led_current_color) != (bit & color)) {
-            // bits are different, so we need to change one
-            if (bit & color) {
-                led_on(led_dev, rgb_idx[pos]);
-            } else {
-                led_off(led_dev, rgb_idx[pos]);
-            }
-        }
+static void set_rgb_leds(uint32_t color, uint16_t duration_ms) {
+    if (led_current_color != color) {
+        uint8_t r = (color >> 16) & 0xFF;
+        uint8_t g = (color >> 8) & 0xFF;
+        uint8_t b = color & 0xFF;
+
+        led_set_brightness(led_dev, rgb_idx[0], (r * 100) / 255);
+        led_set_brightness(led_dev, rgb_idx[1], (g * 100) / 255);
+        led_set_brightness(led_dev, rgb_idx[2], (b * 100) / 255);
+        led_current_color = color;
     }
     if (duration_ms > 0) {
         k_sleep(K_MSEC(duration_ms));
     }
-    led_current_color = color;
 }
 
 // define message queue of blink work items, that will be processed by a
@@ -126,7 +122,7 @@ static void indicate_connectivity_internal(void) {
     switch (zmk_endpoint_get_selected().transport) {
     case ZMK_TRANSPORT_USB: // USB connected and selected
 #if IS_ENABLED(CONFIG_RGBLED_WIDGET_CONN_SHOW_USB)
-        LOG_INF("USB connected, blinking %s", color_names[CONFIG_RGBLED_WIDGET_CONN_COLOR_USB]);
+        LOG_INF("USB connected, blinking %06x", CONFIG_RGBLED_WIDGET_CONN_COLOR_USB);
         blink.color = CONFIG_RGBLED_WIDGET_CONN_COLOR_USB;
         break;
 #endif
@@ -190,10 +186,10 @@ ZMK_SUBSCRIPTION(led_output_listener, zmk_split_peripheral_status_changed);
 #endif
 
 #if IS_ENABLED(CONFIG_ZMK_BATTERY_REPORTING)
-static inline uint8_t get_battery_color(uint8_t battery_level) {
+static inline uint32_t get_battery_color(uint8_t battery_level) {
     if (battery_level == 0) {
-        LOG_INF("Battery level undetermined (zero), blinking %s",
-                color_names[CONFIG_RGBLED_WIDGET_BATTERY_COLOR_MISSING]);
+        LOG_INF("Battery level undetermined (zero), blinking %06x",
+                CONFIG_RGBLED_WIDGET_BATTERY_COLOR_MISSING);
         return CONFIG_RGBLED_WIDGET_BATTERY_COLOR_MISSING;
     }
     if (battery_level >= CONFIG_RGBLED_WIDGET_BATTERY_LEVEL_HIGH) {
@@ -271,16 +267,16 @@ ZMK_LISTENER(led_battery_listener, led_battery_listener_cb);
 ZMK_SUBSCRIPTION(led_battery_listener, zmk_battery_state_changed);
 #endif // IS_ENABLED(CONFIG_ZMK_BATTERY_REPORTING)
 
-uint8_t led_layer_color = 0;
+uint32_t led_layer_color = 0;
 #if SHOW_LAYER_COLORS
 void update_layer_color(void) {
     uint8_t index = zmk_keymap_highest_layer_active();
 
-    if (led_layer_color != layer_color_idx[index]) {
-        led_layer_color = layer_color_idx[index];
-        struct blink_item color = {.color = led_layer_color};
-        LOG_INF("Setting layer color to %s for layer %d", color_names[led_layer_color], index);
-        k_msgq_put(&led_msgq, &color, K_NO_WAIT);
+    uint32_t new_color = layer_color_idx[index];
+    if (new_color > 0) {
+        struct blink_item color_blink = {.color = new_color, .duration_ms = 1500, .sleep_ms = 0};
+        LOG_INF("Blinking layer %d color %06x for 1.5s", index, new_color);
+        k_msgq_put(&led_msgq, &color_blink, K_NO_WAIT);
     }
 }
 
@@ -383,7 +379,7 @@ extern void led_process_thread(void *d0, void *d1, void *d2) {
                          blink.sleep_ms > 0 ? blink.sleep_ms : CONFIG_RGBLED_WIDGET_INTERVAL_MS);
 
         } else {
-            LOG_DBG("Got a layer color item from msgq, color %d", blink.color);
+            LOG_DBG("Got a layer color item from msgq, color %06x", blink.color);
             set_rgb_leds(blink.color, 0);
         }
     }
@@ -425,3 +421,11 @@ extern void led_init_thread(void *d0, void *d1, void *d2) {
 // run init thread on boot for initial battery+output checks
 K_THREAD_DEFINE(led_init_tid, 1024, led_init_thread, NULL, NULL, NULL,
                 K_LOWEST_APPLICATION_THREAD_PRIO, 0, 200);
+
+
+
+
+
+
+
+

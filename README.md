@@ -205,18 +205,18 @@ Below enable and configure the color-based layer indicator.
 
 <details>
 <summary>Mapping for color values</summary>
-Color settings use the following integer values:
+Color settings use 24-bit hex strings representing RGB (e.g., `0xFF00FF` for magenta). Standard predefined variables also exist internally:
 
 | Color        | Value |
 | ------------ | ----- |
-| Black (none) | `0`   |
-| Red          | `1`   |
-| Green        | `2`   |
-| Yellow       | `3`   |
-| Blue         | `4`   |
-| Magenta      | `5`   |
-| Cyan         | `6`   |
-| White        | `7`   |
+| Black (none) | `0x000000`   |
+| Red          | `0xFF0000`   |
+| Green        | `0x00FF00`   |
+| Yellow       | `0xFFFF00`   |
+| Blue         | `0x0000FF`   |
+| Magenta      | `0xFF00FF`   |
+| Cyan         | `0x00FFFF`   |
+| White        | `0xFFFFFF`   |
 
 </details>
 
@@ -244,25 +244,26 @@ As an example, here is a definition for three LEDs connected to VCC and separate
     };
 
     leds {
-        compatible = "gpio-leds";
+        compatible = "pwm-leds";
         status = "okay";
         led0: led_0 {
-            gpios = <&gpio0 26 GPIO_ACTIVE_LOW>;  // red LED, connected to P0.26
+            pwms = <&pwm0 26 PWM_MSEC(20)>;  // red LED, connected to P0.26
         };
         led1: led_1 {
-            gpios = <&gpio0 30 GPIO_ACTIVE_LOW>;  // green LED, connected to P0.30
+            pwms = <&pwm0 30 PWM_MSEC(20)>;  // green LED, connected to P0.30
         };
         led2: led_2 {
-            gpios = <&gpio0 6 GPIO_ACTIVE_LOW>;  // blue LED, connected to P0.06
+            pwms = <&pwm0 6 PWM_MSEC(20)>;  // blue LED, connected to P0.06
         };
     };
 };
 ```
 
-(If the LEDs are wired between GPIO and GND instead, use `GPIO_ACTIVE_HIGH` flag.)
+(If the LEDs are wired between GPIO and GND instead, use `PWM_MSEC(20)` flag.)
 
 Finally, turn on the widget in the configuration:
 
 ```ini
 CONFIG_RGBLED_WIDGET=y
 ```
+

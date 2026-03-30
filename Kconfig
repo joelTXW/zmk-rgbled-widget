@@ -1,12 +1,12 @@
 # Color definitions to use with color settings
-COLOR_BLACK   := 0
-COLOR_RED     := 1
-COLOR_GREEN   := 2
-COLOR_YELLOW  := 3
-COLOR_BLUE    := 4
-COLOR_MAGENTA := 5
-COLOR_CYAN    := 6
-COLOR_WHITE   := 7
+COLOR_BLACK   := 0x000000
+COLOR_RED     := 0xFF0000
+COLOR_GREEN   := 0x00FF00
+COLOR_YELLOW  := 0xFFFF00
+COLOR_BLUE    := 0x0000FF
+COLOR_MAGENTA := 0xFF00FF
+COLOR_CYAN    := 0x00FFFF
+COLOR_WHITE   := 0xFFFFFF
 
 config RGBLED_WIDGET
     bool "Enable RGB LED widget for showing battery and output status"
@@ -57,28 +57,28 @@ config RGBLED_WIDGET_BATTERY_LEVEL_CRITICAL
     default 5
 
 config RGBLED_WIDGET_BATTERY_COLOR_HIGH
-    int "Color for high battery level (above LEVEL_HIGH)"
-    range 0 7
+    hex "Color for high battery level (above LEVEL_HIGH)"
+
     default $(COLOR_GREEN)
 
 config RGBLED_WIDGET_BATTERY_COLOR_MEDIUM
-    int "Color for medium battery level (between LEVEL_LOW and LEVEL_HIGH)"
-    range 0 7
+    hex "Color for medium battery level (between LEVEL_LOW and LEVEL_HIGH)"
+
     default $(COLOR_YELLOW)
 
 config RGBLED_WIDGET_BATTERY_COLOR_LOW
-    int "Color for low battery level (below LEVEL_LOW)"
-    range 0 7
+    hex "Color for low battery level (below LEVEL_LOW)"
+
     default $(COLOR_RED)
 
 config RGBLED_WIDGET_BATTERY_COLOR_CRITICAL
-    int "Color for critical battery level (below LEVEL_CRITICAL)"
-    range 0 7
+    hex "Color for critical battery level (below LEVEL_CRITICAL)"
+
     default $(COLOR_RED)
 
 config RGBLED_WIDGET_BATTERY_COLOR_MISSING
-    int "Color for battery not detected, or peripheral disconnected"
-    range 0 7
+    hex "Color for battery not detected, or peripheral disconnected"
+
     default $(COLOR_MAGENTA)
 
 # Connectivity indicator settings
@@ -94,23 +94,23 @@ config RGBLED_WIDGET_OUTPUT_BLINK_MS  # DEPRECATED, do not use
     default 1000
 
 config RGBLED_WIDGET_CONN_COLOR_CONNECTED
-    int "Color for connected BLE connection status"
-    range 0 7
+    hex "Color for connected BLE connection status"
+
     default $(COLOR_BLUE)
 
 config RGBLED_WIDGET_CONN_COLOR_ADVERTISING
-    int "Color for advertising BLE connection status"
-    range 0 7
+    hex "Color for advertising BLE connection status"
+
     default $(COLOR_YELLOW)
 
 config RGBLED_WIDGET_CONN_COLOR_DISCONNECTED
-    int "Color for disconnected BLE connection status"
-    range 0 7
+    hex "Color for disconnected BLE connection status"
+
     default $(COLOR_RED)
 
 config RGBLED_WIDGET_CONN_COLOR_USB
-    int "Color for USB endpoint active"
-    range 0 7
+    hex "Color for USB endpoint active"
+
     default $(COLOR_CYAN)
 
 # Layer indicator settings
@@ -122,8 +122,8 @@ config RGBLED_WIDGET_LAYER_BLINK_MS
     default 100
 
 config RGBLED_WIDGET_LAYER_COLOR
-    int "Color to use for layer indicator"
-    range 0 7
+    hex "Color to use for layer indicator"
+
     default $(COLOR_CYAN)
 
 config RGBLED_WIDGET_LAYER_DEBOUNCE_MS
@@ -135,163 +135,163 @@ config RGBLED_WIDGET_SHOW_LAYER_COLORS
     bool "Use custom colors for layers"
 
 config RGBLED_WIDGET_LAYER_0_COLOR
-    int "Color to use for the base layer"
-    range 0 7
+    hex "Color to use for the base layer"
+
     default $(COLOR_BLACK)
 
 config RGBLED_WIDGET_LAYER_1_COLOR
-    int "Color to use for layer 1"
-    range 0 7
+    hex "Color to use for layer 1"
+
     default $(COLOR_RED)
 
 config RGBLED_WIDGET_LAYER_2_COLOR
-    int "Color to use for layer 2"
-    range 0 7
+    hex "Color to use for layer 2"
+
     default $(COLOR_GREEN)
 
 config RGBLED_WIDGET_LAYER_3_COLOR
-    int "Color to use for layer 3"
-    range 0 7
+    hex "Color to use for layer 3"
+
     default $(COLOR_YELLOW)
 
 config RGBLED_WIDGET_LAYER_4_COLOR
-    int "Color to use for layer 4"
-    range 0 7
+    hex "Color to use for layer 4"
+
     default $(COLOR_BLUE)
 
 config RGBLED_WIDGET_LAYER_5_COLOR
-    int "Color to use for layer 5"
-    range 0 7
+    hex "Color to use for layer 5"
+
     default $(COLOR_MAGENTA)
 
 config RGBLED_WIDGET_LAYER_6_COLOR
-    int "Color to use for layer 6"
-    range 0 7
+    hex "Color to use for layer 6"
+
     default $(COLOR_CYAN)
 
 config RGBLED_WIDGET_LAYER_7_COLOR
-    int "Color to use for layer 7"
-    range 0 7
+    hex "Color to use for layer 7"
+
     default $(COLOR_WHITE)
 
 config RGBLED_WIDGET_LAYER_8_COLOR
-    int "Color to use for layer 8"
-    range 0 7
+    hex "Color to use for layer 8"
+
     default $(COLOR_BLACK)
 
 config RGBLED_WIDGET_LAYER_9_COLOR
-    int "Color to use for layer 9"
-    range 0 7
+    hex "Color to use for layer 9"
+
     default $(COLOR_BLACK)
 
 config RGBLED_WIDGET_LAYER_10_COLOR
-    int "Color to use for layer 10"
-    range 0 7
+    hex "Color to use for layer 10"
+
     default $(COLOR_BLACK)
 
 config RGBLED_WIDGET_LAYER_11_COLOR
-    int "Color to use for layer 11"
-    range 0 7
+    hex "Color to use for layer 11"
+
     default $(COLOR_BLACK)
 
 config RGBLED_WIDGET_LAYER_12_COLOR
-    int "Color to use for layer 12"
-    range 0 7
+    hex "Color to use for layer 12"
+
     default $(COLOR_BLACK)
 
 config RGBLED_WIDGET_LAYER_13_COLOR
-    int "Color to use for layer 13"
-    range 0 7
+    hex "Color to use for layer 13"
+
     default $(COLOR_BLACK)
 
 config RGBLED_WIDGET_LAYER_14_COLOR
-    int "Color to use for layer 14"
-    range 0 7
+    hex "Color to use for layer 14"
+
     default $(COLOR_BLACK)
 
 config RGBLED_WIDGET_LAYER_15_COLOR
-    int "Color to use for layer 15"
-    range 0 7
+    hex "Color to use for layer 15"
+
     default $(COLOR_BLACK)
 
 config RGBLED_WIDGET_LAYER_16_COLOR
-    int "Color to use for layer 16"
-    range 0 7
+    hex "Color to use for layer 16"
+
     default $(COLOR_BLACK)
 
 config RGBLED_WIDGET_LAYER_17_COLOR
-    int "Color to use for layer 17"
-    range 0 7
+    hex "Color to use for layer 17"
+
     default $(COLOR_BLACK)
 
 config RGBLED_WIDGET_LAYER_18_COLOR
-    int "Color to use for layer 18"
-    range 0 7
+    hex "Color to use for layer 18"
+
     default $(COLOR_BLACK)
 
 config RGBLED_WIDGET_LAYER_19_COLOR
-    int "Color to use for layer 19"
-    range 0 7
+    hex "Color to use for layer 19"
+
     default $(COLOR_BLACK)
 
 config RGBLED_WIDGET_LAYER_20_COLOR
-    int "Color to use for layer 20"
-    range 0 7
+    hex "Color to use for layer 20"
+
     default $(COLOR_BLACK)
 
 config RGBLED_WIDGET_LAYER_21_COLOR
-    int "Color to use for layer 21"
-    range 0 7
+    hex "Color to use for layer 21"
+
     default $(COLOR_BLACK)
 
 config RGBLED_WIDGET_LAYER_22_COLOR
-    int "Color to use for layer 22"
-    range 0 7
+    hex "Color to use for layer 22"
+
     default $(COLOR_BLACK)
 
 config RGBLED_WIDGET_LAYER_23_COLOR
-    int "Color to use for layer 23"
-    range 0 7
+    hex "Color to use for layer 23"
+
     default $(COLOR_BLACK)
 
 config RGBLED_WIDGET_LAYER_24_COLOR
-    int "Color to use for layer 24"
-    range 0 7
+    hex "Color to use for layer 24"
+
     default $(COLOR_BLACK)
 
 config RGBLED_WIDGET_LAYER_25_COLOR
-    int "Color to use for layer 25"
-    range 0 7
+    hex "Color to use for layer 25"
+
     default $(COLOR_BLACK)
 
 config RGBLED_WIDGET_LAYER_26_COLOR
-    int "Color to use for layer 26"
-    range 0 7
+    hex "Color to use for layer 26"
+
     default $(COLOR_BLACK)
 
 config RGBLED_WIDGET_LAYER_27_COLOR
-    int "Color to use for layer 27"
-    range 0 7
+    hex "Color to use for layer 27"
+
     default $(COLOR_BLACK)
 
 config RGBLED_WIDGET_LAYER_28_COLOR
-    int "Color to use for layer 28"
-    range 0 7
+    hex "Color to use for layer 28"
+
     default $(COLOR_BLACK)
 
 config RGBLED_WIDGET_LAYER_29_COLOR
-    int "Color to use for layer 29"
-    range 0 7
+    hex "Color to use for layer 29"
+
     default $(COLOR_BLACK)
 
 config RGBLED_WIDGET_LAYER_30_COLOR
-    int "Color to use for layer 30"
-    range 0 7
+    hex "Color to use for layer 30"
+
     default $(COLOR_BLACK)
 
 config RGBLED_WIDGET_LAYER_31_COLOR
-    int "Color to use for layer 31"
-    range 0 7
+    hex "Color to use for layer 31"
+
     default $(COLOR_BLACK)
 
 endif # RGBLED_WIDGET
