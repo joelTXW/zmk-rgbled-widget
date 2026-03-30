@@ -7,6 +7,7 @@
 #include <zmk/battery.h>
 #include <zmk/ble.h>
 #include <zmk/endpoints.h>
+#include <zmk/endpoints_types.h>
 #include <zmk/events/battery_state_changed.h>
 #include <zmk/events/ble_active_profile_changed.h>
 #include <zmk/events/endpoint_changed.h>
@@ -25,6 +26,35 @@
 LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 
 #define LED_GPIO_NODE_ID DT_COMPAT_GET_ANY_STATUS_OKAY(pwm_leds)
+
+/* Support both historical and current ZMK selected-endpoint APIs. */
+extern struct zmk_endpoint_instance zmk_endpoint_get_selected(void) __attribute__((weak));
+extern struct zmk_endpoint_instance zmk_endpoints_selected(void) __attribute__((weak));
+
+static inline enum zmk_transport endpoint_fallback_transport(void) {
+#ifdef ZMK_TRANSPORT_NONE
+    return ZMK_TRANSPORT_NONE;
+#elif defined(ZMK_TRANSPORT_BLE)
+    return ZMK_TRANSPORT_BLE;
+#elif defined(ZMK_TRANSPORT_USB)
+    return ZMK_TRANSPORT_USB;
+#else
+    return (enum zmk_transport)0;
+#endif
+}
+
+static inline struct zmk_endpoint_instance endpoint_selected_compat(void) {
+    if (zmk_endpoint_get_selected != NULL) {
+        return zmk_endpoint_get_selected();
+    }
+    if (zmk_endpoints_selected != NULL) {
+        return zmk_endpoints_selected();
+    }
+
+    return (struct zmk_endpoint_instance){.transport = endpoint_fallback_transport()};
+}
+extern struct zmk_endpoint_instance zmk_endpoints_selected(void) __attribute__((weak));
+
 
 BUILD_ASSERT(DT_NODE_EXISTS(DT_ALIAS(led_red)),
              "An alias for a red LED is not found for RGBLED_WIDGET");
@@ -119,7 +149,7 @@ static void indicate_connectivity_internal(void) {
     uint8_t profile_index = zmk_ble_active_profile_index();
 #endif
 
-    switch (zmk_endpoint_get_selected().transport) {
+    switch (endpoint_selected_compat().transport) {
     case ZMK_TRANSPORT_USB: // USB connected and selected
 #if IS_ENABLED(CONFIG_RGBLED_WIDGET_CONN_SHOW_USB)
         LOG_INF("USB connected, blinking %06x", CONFIG_RGBLED_WIDGET_CONN_COLOR_USB);
@@ -134,7 +164,7 @@ static void indicate_connectivity_internal(void) {
 #endif
     default: // ZMK_TRANSPORT_NONE, neither BLE nor USB connected
 #if IS_ENABLED(CONFIG_ZMK_BLE)
-        if (zmk_endpoint_get_preferred_transport() != ZMK_TRANSPORT_NONE &&
+        if (endpoint_selected_compat().transport != ZMK_TRANSPORT_NONE &&
             zmk_ble_active_profile_is_open()) {
             LOG_CONN_CENTRAL(profile_index, "open", ADVERTISING);
             blink.color = CONFIG_RGBLED_WIDGET_CONN_COLOR_ADVERTISING;
@@ -421,6 +451,9 @@ extern void led_init_thread(void *d0, void *d1, void *d2) {
 // run init thread on boot for initial battery+output checks
 K_THREAD_DEFINE(led_init_tid, 1024, led_init_thread, NULL, NULL, NULL,
                 K_LOWEST_APPLICATION_THREAD_PRIO, 0, 200);
+
+
+
 
 
 
