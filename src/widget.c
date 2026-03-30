@@ -32,14 +32,12 @@ extern struct zmk_endpoint_instance zmk_endpoint_get_selected(void) __attribute_
 extern struct zmk_endpoint_instance zmk_endpoints_selected(void) __attribute__((weak));
 
 static inline enum zmk_transport endpoint_fallback_transport(void) {
-#ifdef ZMK_TRANSPORT_NONE
-    return ZMK_TRANSPORT_NONE;
-#elif defined(ZMK_TRANSPORT_BLE)
-    return ZMK_TRANSPORT_BLE;
-#elif defined(ZMK_TRANSPORT_USB)
+#if IS_ENABLED(CONFIG_ZMK_USB)
     return ZMK_TRANSPORT_USB;
+#elif IS_ENABLED(CONFIG_ZMK_BLE)
+    return ZMK_TRANSPORT_BLE;
 #else
-    return (enum zmk_transport)0;
+    return 0;
 #endif
 }
 
@@ -451,6 +449,8 @@ extern void led_init_thread(void *d0, void *d1, void *d2) {
 // run init thread on boot for initial battery+output checks
 K_THREAD_DEFINE(led_init_tid, 1024, led_init_thread, NULL, NULL, NULL,
                 K_LOWEST_APPLICATION_THREAD_PRIO, 0, 200);
+
+
 
 
 
