@@ -160,9 +160,9 @@ static void indicate_connectivity_internal(void) {
         blink.color = CONFIG_RGBLED_WIDGET_CONN_COLOR_CONNECTED;
         break;
 #endif
-    default: // ZMK_TRANSPORT_NONE, neither BLE nor USB connected
+    default: // 0, neither BLE nor USB connected
 #if IS_ENABLED(CONFIG_ZMK_BLE)
-        if (endpoint_selected_compat().transport != ZMK_TRANSPORT_NONE &&
+        if (endpoint_selected_compat().transport != 0 &&
             zmk_ble_active_profile_is_open()) {
             LOG_CONN_CENTRAL(profile_index, "open", ADVERTISING);
             blink.color = CONFIG_RGBLED_WIDGET_CONN_COLOR_ADVERTISING;
@@ -449,6 +449,7 @@ extern void led_init_thread(void *d0, void *d1, void *d2) {
 // run init thread on boot for initial battery+output checks
 K_THREAD_DEFINE(led_init_tid, 1024, led_init_thread, NULL, NULL, NULL,
                 K_LOWEST_APPLICATION_THREAD_PRIO, 0, 200);
+
 
 
 
